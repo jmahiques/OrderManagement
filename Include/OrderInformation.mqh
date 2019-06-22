@@ -34,6 +34,10 @@ public:
    virtual bool priceReachedPartialTakeProfit(double price);
    virtual bool priceReachedPartialOnBreakEven(double price);
    virtual bool priceReachedStopLossOnBreakEven(double price);
+   double getPartialStopLossPrice() {return partialStopLossPrice;}
+   double getPartialTakeProfitPrice() {return partialTakeProfitPrice;}
+   double getPartialStopLossBreakEvenPrice() {return partialStopLossBreakEvenPrice;}
+   double getStopLossBreakEvenPrice() {return stopLossBreakEvenPrice;}
   };
 
 OrderInformation::OrderInformation(int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe)
