@@ -10,11 +10,6 @@
 
 #include <UserInterfaceManager.mqh>
 
-const string sellButtonName = "SELL";
-const string buyButtonName = "BUY";
-const string clearAllButtonName = "CLEAR";
-const string hideButtons = " - ";
-
 const string partialStopLossLineName = "Partial stop loss";
 const string partialStopLossToBELineName = "Partial stop loss to BE";
 const string stopLossToBELineName = "Stop loss to BE";
@@ -136,11 +131,6 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
 {
-   int buyButtonState = ObjectGetInteger(0,buyButtonName,OBJPROP_STATE);
-   int sellButtonState = ObjectGetInteger(0,sellButtonName,OBJPROP_STATE);
-   int clearButtonState = ObjectGetInteger(0,clearAllButtonName,OBJPROP_STATE);
-   int hideButtonsState = ObjectGetInteger(0,hideButtons,OBJPROP_STATE);
-   
    if (UIManager.isSellButtonClicked(id, sparam)) {
       Print("Button sell clicked.");
       clickButtonSell();
@@ -396,7 +386,6 @@ void clickButtonClearAll()
    ObjectDelete(0, partialStopLossToBELineName+"#"+IntegerToString(OrderTicket()));
    ObjectDelete(0, stopLossToBELineName+"#"+IntegerToString(OrderTicket()));
    ObjectDelete(0, partialTakeProfitLineName+"#"+IntegerToString(OrderTicket()));
-   ObjectSetInteger(0,clearAllButtonName, OBJPROP_STATE, 0);
 }
 
 //Enhancements
