@@ -38,6 +38,12 @@ public:
    double getPartialTakeProfitPrice() {return partialTakeProfitPrice;}
    double getPartialStopLossBreakEvenPrice() {return partialStopLossBreakEvenPrice;}
    double getStopLossBreakEvenPrice() {return stopLossBreakEvenPrice;}
+   int getTicket(){return ticket;}
+   int getType(){return type;}
+   double getOpenPrice(){return openPrice;}
+   double getStopLossPrice(){return stopLossPrice;}
+   double getTakeProfitPrice(){return takeProfitPrice;}
+   double getLots(){return lots;}
   };
 
 OrderInformation::OrderInformation(int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe)
