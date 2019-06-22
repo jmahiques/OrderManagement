@@ -9,12 +9,14 @@
 #property strict
 
 #include <UserInterfaceManager.mqh>
+#include <OrderExecutionHelper.mqh>
 
 const string partialStopLossLineName = "Partial stop loss";
 const string partialStopLossToBELineName = "Partial stop loss to BE";
 const string stopLossToBELineName = "Stop loss to BE";
 const string partialTakeProfitLineName = "Partial Take Profit";
 UserInterfaceManager UIManager = new UserInterfaceManager();
+OrderExecutionHelper orderExecution;
 
 input int stop = 10;
 input int partialStopLoss = 8;
@@ -30,7 +32,7 @@ input string comment = "Probando ratios";
 input int slippage = 3;
 input bool retrievePreviouslyOrders = false;
 
-struct OrderInformation
+struct OrderInformationStruct
 {
    bool reachedPartialStopLoss;
    bool reachedPartialStopLossBE;
@@ -39,7 +41,7 @@ struct OrderInformation
    int ticket;
 };
 
-OrderInformation orders[];
+OrderInformationStruct orders[];
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -51,6 +53,7 @@ int OnInit()
    if (retrievePreviouslyOrders) {
       setupOrdersPreviouslyOpened();
    }
+   orderExecution = new OrderExecutionHelper(true, slippage, magicNumber);
 //---
    return(INIT_SUCCEEDED);
   }
@@ -69,7 +72,7 @@ void OnTick()
   {
 //---
    for(int i = 0; i < ArraySize(orders); i++) {
-      OrderInformation info = orders[i];
+      OrderInformationStruct info = orders[i];
       if (!OrderSelect(info.ticket, SELECT_BY_TICKET)){
          Print("Cannot select the order ", GetLastError());
          continue;
@@ -146,16 +149,6 @@ void OnChartEvent(const int id,
 }
 
 //Market functions
-int sell()
-{
-   return OrderSend(Symbol(), OP_SELL, lots, Bid, slippage, getStopLoss(OP_SELL), getTakeProfit(OP_SELL), comment, magicNumber, 0, clrRed);
-}
-
-int buy()
-{
-   return OrderSend(Symbol(), OP_BUY, lots, Ask, slippage, getStopLoss(OP_BUY), getTakeProfit(OP_BUY), comment, magicNumber, 0, clrBlue);
-}
-
 void closeHalfOrder()
 {
    if (OrderClose(OrderTicket(), halfLots, OrderType() == OP_BUY ? Bid : Ask, slippage)) {
@@ -221,7 +214,7 @@ double getLineToBreakEvenPrice(int cmd, int pips)
 
 void createOrderInfo(int ticket)
 {
-   OrderInformation info = {false, false, false, false};
+   OrderInformationStruct info = {false, false, false, false};
    info.ticket = ticket;
    
    ArrayResize(orders, ArraySize(orders)+1);
@@ -237,7 +230,7 @@ void orderReachedStopRemoveItFromOrders(int ticket, int index)
 
 void removeIndexFromOrderInformationArray(int index)
 {
-   OrderInformation tempArray[];
+   OrderInformationStruct tempArray[];
    //Lets copy index 0-4 as the input index is to remove index 5
    ArrayCopy(tempArray,orders,0,0,index);
    //Now Copy index 6-9, start from 6  as the input index is to remove index 5
@@ -340,7 +333,7 @@ void clickButtonSell()
       return;
    }
 
-   int ticket = sell();
+   int ticket = orderExecution.sell(Symbol(), lots, getStopLoss(OP_SELL), getTakeProfit(OP_SELL), comment);
    
    if (ticket < 0){
       Print("Error opening the order", GetLastError());
@@ -364,7 +357,7 @@ void clickButtonBuy()
       return;
    }
    
-   int ticket = buy();
+   int ticket = orderExecution.buy(Symbol(), lots, getStopLoss(OP_BUY), getTakeProfit(OP_BUY), comment);
    if (ticket < 0) {
       Print("Error opening the order", GetLastError());
    } else if(OrderSelect(ticket, SELECT_BY_TICKET)) {
