@@ -148,16 +148,6 @@ void OnChartEvent(const int id,
    }
 }
 
-//Market functions
-void closeHalfOrder()
-{
-   if (OrderClose(OrderTicket(), halfLots, OrderType() == OP_BUY ? Bid : Ask, slippage)) {
-      Print("Closed the half of the order. Reached partial stop loss.");
-   } else {
-      Print("Error closing the half of the order. ", GetLastError());
-   }
-}
-
 void putStopOnBreakEven()
 {
    if (OrderModify(OrderTicket(), OrderOpenPrice(), OrderOpenPrice(), OrderTakeProfit(), 0)) {
