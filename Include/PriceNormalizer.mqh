@@ -16,17 +16,19 @@ private:
    int _digits;
 public:
                      PriceNormalizer(int d = 4): _digits(d){};
-                    ~PriceNormalizer();
+                    ~PriceNormalizer(){};
    virtual double addAndNormalizePrice(int pips, double price);
    virtual double substractAndNormalizePrice(int pips, double price);
   };
 
 double PriceNormalizer::addAndNormalizePrice(int pips, double price)
 {
-   return NormalizeDouble(price+pips/MathPow(10, _digits),_digits);
+   double p = price + (pips/MathPow(10, _digits));
+   return NormalizeDouble(p ,_digits);
 }
 
 double PriceNormalizer::substractAndNormalizePrice(int pips, double price)
 {
-   return NormalizeDouble(price-pips/MathPow(10, _digits),_digits);
+   double p = price-(pips/MathPow(10, _digits));
+   return NormalizeDouble(p,_digits);
 }
