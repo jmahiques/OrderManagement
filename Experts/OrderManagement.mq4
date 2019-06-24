@@ -1,8 +1,3 @@
-//+------------------------------------------------------------------+
-//|                                                 OrderKeyOpen.mq4 |
-//|                                                            jordi |
-//|                                                                  |
-//+------------------------------------------------------------------+
 #property copyright "jordi"
 #property link      ""
 #property version   "1.00"
@@ -32,39 +27,28 @@ input string comment = "Probando ratios";
 input int slippage = 3;
 input bool retrievePreviouslyOrders = false;
 
-//+------------------------------------------------------------------+
-//| Expert initialization function                                   |
-//+------------------------------------------------------------------+
 int OnInit()
   {
-//---
+
    UIManager.drawUI();
    orderManager = new OrderManager(_digits, Symbol(), stop, partialStopLoss, partialTakeProfit, takeProfit, partialStopLossToBreakEven, stopLossToBreakEven, lots, halfLots, magicNumber, comment, slippage);
    if (retrievePreviouslyOrders) {
       orderManager.retrieveOrders(Symbol(), magicNumber);
    }
-//---
+
    return(INIT_SUCCEEDED);
   }
-//+------------------------------------------------------------------+
-//| Expert deinitialization function                                 |
-//+------------------------------------------------------------------+
+
 void OnDeinit(const int reason)
   {
-//---
 
   }
-//+------------------------------------------------------------------+
-//| Expert tick function                                             |
-//+------------------------------------------------------------------+
+
 void OnTick()
   {
-//---
    orderManager.checkOrders();
   }
-//+------------------------------------------------------------------+
-//| ChartEvent function                                              |
-//+------------------------------------------------------------------+
+
 void OnChartEvent(const int id,
                   const long &lparam,
                   const double &dparam,

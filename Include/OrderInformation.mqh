@@ -1,8 +1,3 @@
-//+------------------------------------------------------------------+
-//|                                      OrderInformationManager.mqh |
-//|                                                            jordi |
-//|                                                                  |
-//+------------------------------------------------------------------+
 #property copyright "jordi"
 #property link      ""
 #property version   "1.00"

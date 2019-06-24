@@ -1,8 +1,3 @@
-//+------------------------------------------------------------------+
-//|                                            OrderDrawerHelper.mqh |
-//|                                                            jordi |
-//|                                             https://www.mql4.com |
-//+------------------------------------------------------------------+
 #property copyright "jordi"
 #property link      "https://www.mql4.com"
 #property version   "1.00"

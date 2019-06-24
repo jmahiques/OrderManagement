@@ -1,8 +1,3 @@
-//+------------------------------------------------------------------+
-//|                                         UserInterfaceManager.mqh |
-//|                                                            jordi |
-//|                                             https://www.mql4.com |
-//+------------------------------------------------------------------+
 #property copyright "jordi"
 #property link      "https://www.mql4.com"
 #property version   "1.00"
@@ -29,7 +24,6 @@ private:
    int buyIndex;
    int clearIndex;
    int chartId;
-   //Functions
    virtual void createButton(ButtonProperties &properties);
    virtual void deleteButton(string name);
    virtual void hideUI();
@@ -47,8 +41,7 @@ public:
    virtual void notifyBuyFinished();
    virtual void notifyClearFinished();
   };
-
-//Constructor
+  
 UserInterfaceManager::UserInterfaceManager()
 {
    ButtonProperties minimizeProperties = {"-", 10, 20, 50, 20, clrDarkGray, clrBlack, "-"};
@@ -68,7 +61,7 @@ UserInterfaceManager::UserInterfaceManager()
    buttonProperties[buyIndex] = buyProperties;
    buttonProperties[clearIndex] = clearProperties;
 }
-//Destructor
+
 UserInterfaceManager::~UserInterfaceManager()
 {
    destroyUI();
@@ -92,7 +85,6 @@ UserInterfaceManager::deleteButton(string buttonName)
    ObjectDelete(0, buttonName);
 }
 
-//Public class functions
 UserInterfaceManager::drawUI()
 {
    createButton(buttonProperties[minimizeIndex]);
