@@ -7,10 +7,10 @@
 #property link      ""
 #property version   "1.00"
 #property strict
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-class OrderInformation
+
+#include <Object.mqh>
+
+class OrderInformation: public CObject
   {
 private:
    int ticket;
@@ -29,10 +29,14 @@ private:
    bool stopLossOnBreakEven;
 public:
                      OrderInformation(int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe);
-                    ~OrderInformation();
+                    ~OrderInformation(){};
+   bool executedPartialStopLoss;
+   bool executedPartialTakeProfit;
+   bool executedPartialStopOnBreakEven;
+   bool executedStopLossOnBreakEven;
    virtual bool priceReachedPartialStopLoss(double price);
    virtual bool priceReachedPartialTakeProfit(double price);
-   virtual bool priceReachedPartialOnBreakEven(double price);
+   virtual bool priceReachedPartialStopOnBreakEven(double price);
    virtual bool priceReachedStopLossOnBreakEven(double price);
    double getPartialStopLossPrice() {return partialStopLossPrice;}
    double getPartialTakeProfitPrice() {return partialTakeProfitPrice;}
@@ -44,19 +48,29 @@ public:
    double getStopLossPrice(){return stopLossPrice;}
    double getTakeProfitPrice(){return takeProfitPrice;}
    double getLots(){return lots;}
+   int Type(){return(1);}
+   int Compare(const CObject *node,const int mode=0){
+      if (this.ticket > ((OrderInformation*)node).getTicket()) {return(1);}
+      if (this.ticket < ((OrderInformation*)node).getTicket()) {return(-1);}
+      return(0);
+   };
   };
 
 OrderInformation::OrderInformation(int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe)
 {
-   ticket = t;
-   stopLossPrice = sl;
-   takeProfitPrice = tp;
-   lots = l;
-   type = ty;
-   partialStopLossPrice = psl;
-   partialTakeProfitPrice = ptp;
-   partialStopLossBreakEvenPrice = pslbe;
-   stopLossBreakEvenPrice = slbe;
+   this.ticket = t;
+   this.stopLossPrice = sl;
+   this.takeProfitPrice = tp;
+   this.lots = l;
+   this.type = ty;
+   this.partialStopLossPrice = psl;
+   this.partialTakeProfitPrice = ptp;
+   this.partialStopLossBreakEvenPrice = pslbe;
+   this.stopLossBreakEvenPrice = slbe;
+   this.executedPartialStopLoss = false;
+   this.executedPartialStopOnBreakEven = false;
+   this.executedPartialTakeProfit = false;
+   this.executedStopLossOnBreakEven = false;
 }
 
 bool OrderInformation::priceReachedPartialStopLoss(double price)
@@ -81,7 +95,7 @@ bool OrderInformation::priceReachedPartialTakeProfit(double price)
    return reachedPartialTakeProfit;
 }
 
-bool OrderInformation::priceReachedPartialOnBreakEven(double price)
+bool OrderInformation::priceReachedPartialStopOnBreakEven(double price)
 {
    if (type == OP_BUY) {
       partialOnBreakEven = price >= partialStopLossBreakEvenPrice;
