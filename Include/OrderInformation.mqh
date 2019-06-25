@@ -23,7 +23,7 @@ private:
    bool partialOnBreakEven;
    bool stopLossOnBreakEven;
 public:
-                     OrderInformation(int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe);
+                     OrderInformation(double p, int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe);
                     ~OrderInformation(){};
    bool executedPartialStopLoss;
    bool executedPartialTakeProfit;
@@ -49,10 +49,16 @@ public:
       if (this.ticket < ((OrderInformation*)node).getTicket()) {return(-1);}
       return(0);
    };
+   void updateInfoAfterCloseHalf(double lots, double openPrice, int ticket){
+      this.lots = lots;
+      this.openPrice = openPrice;
+      this.ticket = ticket;
+   };
   };
 
-OrderInformation::OrderInformation(int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe)
+OrderInformation::OrderInformation(double p, int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe)
 {
+   this.openPrice = p;
    this.ticket = t;
    this.stopLossPrice = sl;
    this.takeProfitPrice = tp;
