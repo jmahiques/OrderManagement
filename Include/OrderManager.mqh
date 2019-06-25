@@ -33,6 +33,7 @@ private:
    virtual double computePartialTakeProfitPrice(int pips, double price, int type);
    virtual double computePartialStopLossToBreakEvenPrice(int pips, double price, int type);
    virtual double computeStopLossToBreakEvenPrice(int pips, double price, int type);
+   virtual void closeHalf(OrderInformation &order, color rowColor);
 public:
                      OrderManager(){}
                      OrderManager(int digits, string symbol, int stop, int partialStopLoss, int partialTakeProfit, int takeProfit, int partialStopLossToBreakEven, int stopLossToBreakEven, double lots, double halfLots, int magicNumber, string comment, int slippage);
@@ -105,6 +106,7 @@ OrderManager::retrieveOrders(string symbol,int magicNumber)
 OrderInformation* OrderManager::createOrderInformation()
 {
    OrderInformation* order = new OrderInformation(
+      OrderOpenPrice(),
       OrderTicket(),
       OrderStopLoss(),
       OrderTakeProfit(),
@@ -170,7 +172,7 @@ double OrderManager::computeStopLossToBreakEvenPrice(int pips, double price, int
 
 void OrderManager::sell(void)
 {
-   double price = Ask;
+   double price = Bid;
    double sl = priceNormalizer.addAndNormalizePrice(stop, price);
    double tp = priceNormalizer.substractAndNormalizePrice(takeProfit, price);
    int ticket = orderExecution.sell(this.symbol, this.lots, sl, tp, this.comment);
@@ -188,7 +190,7 @@ void OrderManager::sell(void)
 
 void OrderManager::buy(void)
 {
-   double price = Bid;
+   double price = Ask;
    double sl = priceNormalizer.substractAndNormalizePrice(stop, price);
    double tp = priceNormalizer.addAndNormalizePrice(takeProfit, price);
    int ticket = orderExecution.buy(this.symbol, this.lots, sl, tp, this.comment);
@@ -225,7 +227,7 @@ void OrderManager::checkOrders()
       
       //Price touch partial stop loss
       if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss) {
-         orderExecution.closeHalfOrder(order);
+         closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
          Print("Price reached Partial Stop Loss");
          continue;
@@ -248,7 +250,7 @@ void OrderManager::checkOrders()
       
       //Price reaches partial take profit
       if (order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
-         orderExecution.closeHalfOrder(order);
+         orderExecution.closeHalfOrder(order, clrBlue);
          order.executedPartialTakeProfit = true;
          Print("Price reached Partial Take Profit");
          continue;
@@ -256,11 +258,11 @@ void OrderManager::checkOrders()
       
       //Price reached the line to put the partial stop loss to breakeven and return to the open price
       if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && order.getType() == OP_BUY && price < order.getOpenPrice()) {
-         orderExecution.closeHalfOrder(order);
+         closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
          Print("Close the half of the position, the price reached the order price entry");
       } else if(order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && order.getType() == OP_SELL && price > order.getOpenPrice()) {
-         orderExecution.closeHalfOrder(order);
+         orderExecution.closeHalfOrder(order, clrRed);
          order.executedPartialStopLoss = true;
          Print("Close the half of the position, the price reached the order price entry");
       }
@@ -273,4 +275,13 @@ void OrderManager::clearLines(void)
       OrderInformation* order = orders.At(i);
       drawerHelper.clearLines(order);
    }
+}
+
+void OrderManager::closeHalf(OrderInformation &order, color rowColor)
+{
+   if (!OrderSelect(OrdersTotal()-1, SELECT_BY_POS)){
+      Print("Error while selecting the last order");
+      return;
+   }
+   order.updateInfoAfterCloseHalf(OrderLots(), OrderOpenPrice(), OrderTicket());
 }
