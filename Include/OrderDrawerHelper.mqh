@@ -30,6 +30,7 @@ public:
    virtual void priceReachedStopLossToBreakEvenLine(OrderInformation &order);
    virtual void priceReachedPartialTakeProfit(OrderInformation &order);
    virtual void priceReachedPartialStopLoss(OrderInformation &order);
+   virtual void priceReachedOpenPriceAfterPartialStopOnBreakEven(OrderInformation &order);
   };
 
 OrderDrawerHelper::OrderDrawerHelper()
@@ -96,23 +97,28 @@ OrderDrawerHelper::drawLines(OrderInformation &order)
 OrderDrawerHelper::priceReachedPartialStopLossToBreakEvenLine(OrderInformation &order, double price)
 {
    ObjectSetDouble(0, getObjectName(order.getTicket(), partialStopLossName), OBJPROP_PRICE1, price);
-   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossToBreakEvenName);
+   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossToBreakEvenName));
 }
 
 OrderDrawerHelper::priceReachedStopLossToBreakEvenLine(OrderInformation &order)
 {
-   ObjectDelete(0, getObjectName(order.getTicket(), stopLossToBreakEvenName);
+   ObjectDelete(0, getObjectName(order.getTicket(), stopLossToBreakEvenName));
 }
 
 OrderDrawerHelper::priceReachedPartialTakeProfit(OrderInformation &order)
 {
-   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName);
-   ObjectDelete(0, getObjectName(order.getTicket(), partialTakeProfitName);
+   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName));
+   ObjectDelete(0, getObjectName(order.getTicket(), partialTakeProfitName));
 }
 
-OrderDrawerHelper::priceReachedPartialTakeProfit(OrderInformation &order)
+OrderDrawerHelper::priceReachedPartialStopLoss(OrderInformation &order)
 {
-   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName);
-   ObjectDelete(0, getObjectName(order.getTicket(), partialTakeProfitName);
-   ObjectDelete(0, getObjectName(order.getTicket(), stopLossToBreakEvenName);
+   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName));
+   ObjectDelete(0, getObjectName(order.getTicket(), partialTakeProfitName));
+   ObjectDelete(0, getObjectName(order.getTicket(), stopLossToBreakEvenName));
+}
+
+OrderDrawerHelper::priceReachedOpenPriceAfterPartialStopOnBreakEven(OrderInformation &order)
+{
+   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName));
 }
