@@ -266,6 +266,15 @@ void OrderManager::checkOrders()
          order.executedPartialStopLoss = true;
          Print("Close the half of the position, the price reached the order price entry");
       }
+      
+      //Price reached the partial stop loss, then, the price touched the partialStopLossToBreakEvenLine -> stop to BreakEven
+      if (order.priceReachedPartialStopLoss && order.executedPartialStopLoss && order.getType() == OP_BUY && price > order.getPartialStopLossBreakEvenPrice()) {
+         orderExecution.putStopOnBreakEven(order);
+         order.executedStopLossOnBreakEven = true;
+      if (order.priceReachedPartialStopLoss && order.executedPartialStopLoss && order.getType() == OP_SELL && price < order.getPartialStopLossBreakEvenPrice()) {
+         orderExecution.putStopOnBreakEven(order);
+         order.executedStopLossOnBreakEven = true;
+      }
    }
 }
 
