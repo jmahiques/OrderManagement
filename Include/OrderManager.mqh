@@ -279,6 +279,7 @@ void OrderManager::clearLines(void)
 
 void OrderManager::closeHalf(OrderInformation &order, color rowColor)
 {
+   orderExecution.closeHalfOrder(order, rowColor);
    if (!OrderSelect(OrdersTotal()-1, SELECT_BY_POS)){
       Print("Error while selecting the last order");
       return;
