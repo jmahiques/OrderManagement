@@ -181,8 +181,9 @@ void OrderManager::sell(void)
       if (OrderSelect(ticket, SELECT_BY_TICKET)) {
          OrderInformation* order = createOrderInformation();
          drawerHelper.drawLines(order);
+         return;
       }
-      Print("Cannot open the order");
+      Print("Cannot open the order ", GetLastError());
    } else {
       PrintFormat("Cannot open the order with SL: %f TP: %.4f Market Price: %.4f", sl, tp, price);
    }
@@ -199,8 +200,9 @@ void OrderManager::buy(void)
       if (OrderSelect(ticket, SELECT_BY_TICKET)) {
          OrderInformation* order = createOrderInformation();
          drawerHelper.drawLines(order);
+         return;
       }
-      Print("Cannot open the order");
+      Print("Cannot open the order ", GetLastError());
    } else {
       PrintFormat("Cannot open the order with SL: %.4f TP: %.4f Market Price: %.4f", sl, tp, price);
    }
@@ -254,7 +256,7 @@ void OrderManager::checkOrders()
       
       //Price reaches partial take profit
       if (order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
-         orderExecution.closeHalfOrder(order, clrBlue);
+         closeHalf(order, clrOliveDrab);
          order.executedPartialTakeProfit = true;
          drawerHelper.priceReachedPartialTakeProfit(order);
          Print("Price reached Partial Take Profit");
@@ -268,7 +270,7 @@ void OrderManager::checkOrders()
          drawerHelper.priceReachedOpenPriceAfterPartialStopOnBreakEven(order);
          Print("Close the half of the position, the price reached the order price entry");
       } else if(order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && order.getType() == OP_SELL && price > order.getOpenPrice()) {
-         orderExecution.closeHalfOrder(order, clrRed);
+         closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
          drawerHelper.priceReachedOpenPriceAfterPartialStopOnBreakEven(order);
          Print("Close the half of the position, the price reached the order price entry");
@@ -295,10 +297,14 @@ void OrderManager::clearLines(void)
 
 void OrderManager::closeHalf(OrderInformation &order, color rowColor)
 {
-   orderExecution.closeHalfOrder(order, rowColor);
+   if (!orderExecution.closeHalfOrder(order, rowColor)) {
+      Print("Error while closing the half of the order", GetLastError());
+      return;
+   }
    if (!OrderSelect(OrdersTotal()-1, SELECT_BY_POS)){
-      Print("Error while selecting the last order");
+      Print("Error while selecting the last order", GetLastError());
       return;
    }
    order.updateInfoAfterCloseHalf(OrderLots(), OrderOpenPrice(), OrderTicket());
+   Print("Closed half position correctly, new ticket ", OrderTicket());
 }
