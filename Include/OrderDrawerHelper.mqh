@@ -26,11 +26,12 @@ public:
                     ~OrderDrawerHelper(){};
    virtual void clearLines(OrderInformation &order);
    virtual void drawLines(OrderInformation &order);
-   virtual void priceReachedPartialStopLossToBreakEvenLine(OrderInformation &order, double price);
-   virtual void priceReachedStopLossToBreakEvenLine(OrderInformation &order);
-   virtual void priceReachedPartialTakeProfit(OrderInformation &order);
-   virtual void priceReachedPartialStopLoss(OrderInformation &order);
-   virtual void priceReachedOpenPriceAfterPartialStopOnBreakEven(OrderInformation &order);
+   virtual void removePartialStopLossLine(OrderInformation &order);
+   virtual void removePartialStopLossBreakEvenLine(OrderInformation &order);
+   virtual void removeStopLossBreakEvenLine(OrderInformation &order);
+   virtual void removePartialTakeProfitLine(OrderInformation &order);
+   virtual void drawPartialStopLossOnBreakEven(OrderInformation &order, float price);
+   virtual void removePartialStopLossOnBreakEven(OrderInformation &order);
   };
 
 OrderDrawerHelper::OrderDrawerHelper()
@@ -45,7 +46,7 @@ string OrderDrawerHelper::getObjectName(int ticket, string name)
 {
    return name + "#" + IntegerToString(ticket);
 }
-  
+
 OrderDrawerHelper::drawPartialStopLoss(OrderInformation &order)
 {
    string name = this.getObjectName(order.getTicket(), partialStopLossName);
@@ -94,31 +95,35 @@ OrderDrawerHelper::drawLines(OrderInformation &order)
    this.drawStopLossToBreakEven(order);
 }
 
-OrderDrawerHelper::priceReachedPartialStopLossToBreakEvenLine(OrderInformation &order, double price)
+OrderDrawerHelper::removePartialStopLossLine(OrderInformation &order)
 {
-   ObjectSetDouble(0, getObjectName(order.getTicket(), partialStopLossName), OBJPROP_PRICE1, price);
-   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossToBreakEvenName));
+   ObjectDelete(0, this.getObjectName(order.getTicket(), partialStopLossName));
 }
 
-OrderDrawerHelper::priceReachedStopLossToBreakEvenLine(OrderInformation &order)
+OrderDrawerHelper::removePartialStopLossBreakEvenLine(OrderInformation &order)
 {
-   ObjectDelete(0, getObjectName(order.getTicket(), stopLossToBreakEvenName));
+   ObjectDelete(0, this.getObjectName(order.getTicket(), partialStopLossToBreakEvenName));
 }
 
-OrderDrawerHelper::priceReachedPartialTakeProfit(OrderInformation &order)
+OrderDrawerHelper::removeStopLossBreakEvenLine(OrderInformation &order)
 {
-   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName));
-   ObjectDelete(0, getObjectName(order.getTicket(), partialTakeProfitName));
+   ObjectDelete(0, this.getObjectName(order.getTicket(), stopLossToBreakEvenName));
 }
 
-OrderDrawerHelper::priceReachedPartialStopLoss(OrderInformation &order)
+OrderDrawerHelper::removePartialTakeProfitLine(OrderInformation &order)
 {
-   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName));
-   ObjectDelete(0, getObjectName(order.getTicket(), partialTakeProfitName));
-   ObjectDelete(0, getObjectName(order.getTicket(), stopLossToBreakEvenName));
+   ObjectDelete(0, this.getObjectName(order.getTicket(), partialTakeProfitName));
 }
 
-OrderDrawerHelper::priceReachedOpenPriceAfterPartialStopOnBreakEven(OrderInformation &order)
+OrderDrawerHelper::drawPartialStopLossOnBreakEven(OrderInformation &order, float price)
 {
-   ObjectDelete(0, getObjectName(order.getTicket(), partialStopLossName));
+   string name = this.getObjectName(order.getTicket(), partialStopLossName);
+   ObjectCreate(0, name, OBJ_HLINE, 0, 0, price);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, clrRed);
+   ObjectSetInteger(0, name, OBJPROP_STYLE, STYLE_SOLID);
+}
+
+OrderDrawerHelper::removePartialStopLossOnBreakEven(OrderInformation &order)
+{
+   ObjectDelete(0, this.getObjectName(order.getTicket(), partialStopLossName));
 }

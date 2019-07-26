@@ -36,7 +36,10 @@ private:
    virtual void closeHalf(OrderInformation &order, color rowColor);
 public:
                      OrderManager(){}
-                     OrderManager(int digits, string symbol, int stop, int partialStopLoss, int partialTakeProfit, int takeProfit, int partialStopLossToBreakEven, int stopLossToBreakEven, double lots, double halfLots, int magicNumber, string comment, int slippage);
+                     OrderManager(
+                        int digits, string symbol, int stop, int partialStopLoss, int partialTakeProfit, int takeProfit, int partialStopLossToBreakEven, 
+                        int stopLossToBreakEven, double lots, double halfLots, int magicNumber, string comment, int slippage
+                     );
                     ~OrderManager();
    virtual void retrieveOrders(string symbol, int magicNumber);
    virtual void sell();
@@ -221,6 +224,7 @@ void OrderManager::checkOrders()
       //The order reached the stop loss, pop it from the orders array
       if (OrderCloseTime() != 0) {
          Print("The order has been closed due to stop loss");
+         drawerHelper.clearLines(order);
          orders.Delete(i);
          return;
       }
@@ -229,9 +233,12 @@ void OrderManager::checkOrders()
       
       //Price touch partial stop loss
       if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss) {
+         drawerHelper.removePartialStopLossLine(order);
+         drawerHelper.removePartialStopLossBreakEvenLine(order);
+         
          closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
-         drawerHelper.priceReachedPartialStopLoss(order);
+         
          Print("Price reached Partial Stop Loss");
          continue;
       }
@@ -239,40 +246,55 @@ void OrderManager::checkOrders()
       //Price touches the line to put the partial stop loss to breakeven
       if (order.priceReachedPartialStopOnBreakEven(price) && !order.executedPartialStopOnBreakEven) {
          order.executedPartialStopOnBreakEven = true;
-         double partialStopLossLinePrice = order.getType() == OP_BUY ? priceNormalizer.addAndNormalizePrice(1, price) : priceNormalizer.substractAndNormalizePrice(1, price);
-         drawerHelper.priceReachedPartialStopLossToBreakEvenLine(order, partialStopLossLinePrice);
+         
+         double partialStopLossLinePrice = order.getType() == OP_BUY 
+            ? priceNormalizer.addAndNormalizePrice(1, price) 
+            : priceNormalizer.substractAndNormalizePrice(1, price);
+         
+         drawerHelper.removePartialStopLossLine(order);
+         drawerHelper.removeStopLossBreakEvenLine(order);   
+         drawerHelper.drawPartialStopLossOnBreakEven(order, partialStopLossLinePrice);
+         
          Print("Price reached Partial Stop Loss BE line");
          continue;
       }
       
       //Price touches the line to put the stop loss to breakeven
       if (order.priceReachedStopLossOnBreakEven(price) && !order.executedStopLossOnBreakEven) {
+         drawerHelper.removeStopLossBreakEvenLine(order);
+         
          orderExecution.putStopOnBreakEven(order);
          order.executedStopLossOnBreakEven = true;
-         drawerHelper.priceReachedStopLossToBreakEvenLine(order);
+         
          Print("Price reached Stop Loss BE line");
          continue;
       }
       
       //Price reaches partial take profit
       if (order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
+         drawerHelper.removePartialTakeProfitLine(order);
+         
          closeHalf(order, clrOliveDrab);
          order.executedPartialTakeProfit = true;
-         drawerHelper.priceReachedPartialTakeProfit(order);
+         
          Print("Price reached Partial Take Profit");
          continue;
       }
       
       //Price reached the line to put the partial stop loss to breakeven and return to the open price
       if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && order.getType() == OP_BUY && price < order.getOpenPrice()) {
+         drawerHelper.removePartialStopLossOnBreakEven(order);
+         
          closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
-         drawerHelper.priceReachedOpenPriceAfterPartialStopOnBreakEven(order);
+         
          Print("Close the half of the position, the price reached the order price entry");
       } else if(order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && order.getType() == OP_SELL && price > order.getOpenPrice()) {
+         drawerHelper.removePartialStopLossOnBreakEven(order);
+         
          closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
-         drawerHelper.priceReachedOpenPriceAfterPartialStopOnBreakEven(order);
+         
          Print("Close the half of the position, the price reached the order price entry");
       }
    }
