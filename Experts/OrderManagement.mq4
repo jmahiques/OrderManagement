@@ -64,6 +64,7 @@ void OnChartEvent(const int id,
       UIManager.notifyClearFinished();
    } else if(UIManager.isCloseAllClicked(id, sparam) && MessageBox("Cerrar posiciones", "Cerrar posiciones", MB_YESNO) == 6) {
       Print("Close all positions clicked");
+      orderManager.closeAllOrders();
    } else if (id == CHARTEVENT_OBJECT_DRAG && OrderLevelDrawer::isPriceLevel(sparam)) {
       orderManager.updatePartial(sparam);
    }

@@ -19,6 +19,7 @@ public:
    virtual int buy(string symbol, double lots, double sl, double tp, string comment, color arrowColor = clrBlue);
    virtual bool closeHalfOrder(OrderInformation &order, color arrowColor);
    virtual bool putStopOnBreakEven(OrderInformation &order);
+   virtual bool closeOrder(OrderInformation &order);
   };
   
 double OrderExecutionHelper::getHalfLots(double _lots)
@@ -44,4 +45,9 @@ bool OrderExecutionHelper::closeHalfOrder(OrderInformation &order, color arrowCo
 bool OrderExecutionHelper::putStopOnBreakEven(OrderInformation &order)
 {
    return OrderModify(order.getTicket(), order.getOpenPrice(), order.getOpenPrice(), order.getTakeProfitPrice(), 0);
+}
+
+bool OrderExecutionHelper::closeOrder(OrderInformation &order)
+{
+   return OrderClose(order.getTicket(), order.getLots(), OP_BUY ? Bid : Ask, this.slippage);
 }

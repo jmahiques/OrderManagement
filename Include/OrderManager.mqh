@@ -43,6 +43,7 @@ public:
    virtual void checkOrders();
    virtual void clearLines();
    virtual void updatePartial(string name);
+   virtual void closeAllOrders();
   };
   
 OrderManager::OrderManager(
@@ -265,5 +266,14 @@ void OrderManager::updatePartial(string name)
          order.setPartialTakeProfit(price);
          
       }
+   }
+}
+
+void OrderManager::closeAllOrders(void)
+{
+   clearLines();
+   for(int i = 0; i < this.orders.Total(); i++) {
+      OrderInformation* order = orders.At(i);
+      this.orderExecution.closeOrder(order);
    }
 }
