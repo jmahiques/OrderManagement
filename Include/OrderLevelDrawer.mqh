@@ -22,6 +22,7 @@ class OrderLevelDrawer
       static void getPartialStopLossPrice(OrderInformation &order);
       static double getPriceLevel(string name);
       static bool isPriceLevel(string name);
+      static int getTicket(string name);
       
       OrderLevelDrawer(){}
       ~OrderLevelDrawer(){}
@@ -75,4 +76,13 @@ static double OrderLevelDrawer::getPriceLevel(string name)
 static bool OrderLevelDrawer::isPriceLevel(string name)
 {
    return StringFind(name, "PROFIT") >= 0 || StringFind(name, "STOP") >= 0;
+}
+
+static int OrderLevelDrawer::getTicket(string name)
+{
+   if (!OrderLevelDrawer::isPriceLevel(name)) {
+      return -1;
+   }
+
+   return StringToInteger(StringSubstr(name, StringFind(name, "PROFIT") >= 0 ? 5 : 4));
 }
