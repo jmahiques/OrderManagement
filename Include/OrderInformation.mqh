@@ -16,27 +16,19 @@ private:
    double lots;
    double partialStopLossPrice;
    double partialTakeProfitPrice;
-   double partialStopLossBreakEvenPrice;
-   double stopLossBreakEvenPrice;
    bool reachedPartialStopLoss;
    bool reachedPartialTakeProfit;
-   bool partialOnBreakEven;
-   bool stopLossOnBreakEven;
 public:
-                     OrderInformation(double p, int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe);
+                     OrderInformation(double p, int t, double sl, double tp, double l, int ty, double psl, double ptp);
                     ~OrderInformation(){};
    bool executedPartialStopLoss;
    bool executedPartialTakeProfit;
-   bool executedPartialStopOnBreakEven;
-   bool executedStopLossOnBreakEven;
    virtual bool priceReachedPartialStopLoss(double price);
    virtual bool priceReachedPartialTakeProfit(double price);
-   virtual bool priceReachedPartialStopOnBreakEven(double price);
-   virtual bool priceReachedStopLossOnBreakEven(double price);
    double getPartialStopLossPrice() {return partialStopLossPrice;}
+   void setPartialStopLoss(double price){this.partialStopLossPrice = price;}
    double getPartialTakeProfitPrice() {return partialTakeProfitPrice;}
-   double getPartialStopLossBreakEvenPrice() {return partialStopLossBreakEvenPrice;}
-   double getStopLossBreakEvenPrice() {return stopLossBreakEvenPrice;}
+   void setPartialTakeProfit(double price){this.partialTakeProfitPrice = price;}
    int getTicket(){return ticket;}
    int getType(){return type;}
    double getOpenPrice(){return openPrice;}
@@ -56,7 +48,7 @@ public:
    };
   };
 
-OrderInformation::OrderInformation(double p, int t, double sl, double tp, double l, int ty, double psl, double ptp, double pslbe, double slbe)
+OrderInformation::OrderInformation(double p, int t, double sl, double tp, double l, int ty, double psl, double ptp)
 {
    this.openPrice = p;
    this.ticket = t;
@@ -66,12 +58,8 @@ OrderInformation::OrderInformation(double p, int t, double sl, double tp, double
    this.type = ty;
    this.partialStopLossPrice = psl;
    this.partialTakeProfitPrice = ptp;
-   this.partialStopLossBreakEvenPrice = pslbe;
-   this.stopLossBreakEvenPrice = slbe;
    this.executedPartialStopLoss = false;
-   this.executedPartialStopOnBreakEven = false;
    this.executedPartialTakeProfit = false;
-   this.executedStopLossOnBreakEven = false;
 }
 
 bool OrderInformation::priceReachedPartialStopLoss(double price)
@@ -94,26 +82,4 @@ bool OrderInformation::priceReachedPartialTakeProfit(double price)
    }
    
    return reachedPartialTakeProfit;
-}
-
-bool OrderInformation::priceReachedPartialStopOnBreakEven(double price)
-{
-   if (type == OP_BUY) {
-      partialOnBreakEven = price >= partialStopLossBreakEvenPrice;
-   } else if (type == OP_SELL) {
-      partialOnBreakEven = price <= partialStopLossBreakEvenPrice;
-   }
-   
-   return partialOnBreakEven;
-}
-
-bool OrderInformation::priceReachedStopLossOnBreakEven(double price)
-{
-   if (type == OP_BUY) {
-      stopLossOnBreakEven = price >= stopLossBreakEvenPrice;
-   } else if (type == OP_SELL) {
-      stopLossOnBreakEven = price <= stopLossBreakEvenPrice;
-   }
-   
-   return stopLossOnBreakEven;
 }
