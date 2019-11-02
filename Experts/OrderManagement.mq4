@@ -5,21 +5,18 @@
 
 #include <UserInterfaceManager.mqh>
 #include <OrderManager.mqh>
+#include <OrderLevelDrawer.mqh>
 
 const string partialStopLossLineName = "Partial stop loss";
-const string partialStopLossToBELineName = "Partial stop loss to BE";
-const string stopLossToBELineName = "Stop loss to BE";
 const string partialTakeProfitLineName = "Partial Take Profit";
-UserInterfaceManager UIManager = new UserInterfaceManager();
-OrderManager orderManager;
+UserInterfaceManager *UIManager = new UserInterfaceManager();
+OrderManager *orderManager;
 
 input int stop = 10;
 input int partialStopLoss = 8;
 input int partialTakeProfit = 40;
 input int takeProfit = 80;
 input int _digits = 4;
-input int partialStopLossToBreakEven = 20;
-input int stopLossToBreakEven = 30;
 input double lots = 0.02;
 input double halfLots = 0.01;
 input int magicNumber = 1;
@@ -29,9 +26,8 @@ input bool retrievePreviouslyOrders = false;
 
 int OnInit()
   {
-
    UIManager.drawUI();
-   orderManager = new OrderManager(_digits, Symbol(), stop, partialStopLoss, partialTakeProfit, takeProfit, partialStopLossToBreakEven, stopLossToBreakEven, lots, halfLots, magicNumber, comment, slippage);
+   orderManager = new OrderManager(_digits, Symbol(), stop, partialStopLoss, partialTakeProfit, takeProfit, lots, halfLots, magicNumber, comment, slippage);
    if (retrievePreviouslyOrders) {
       orderManager.retrieveOrders(Symbol(), magicNumber);
    }
@@ -41,7 +37,7 @@ int OnInit()
 
 void OnDeinit(const int reason)
   {
-
+   UIManager.destroyUI();
   }
 
 void OnTick()
@@ -68,5 +64,10 @@ void OnChartEvent(const int id,
       orderManager.clearLines();
       Print("Button clear clicked");
       UIManager.notifyClearFinished();
+   } else if(UIManager.isCloseAllClicked(id, sparam) && MessageBox("Cerrar posiciones", "Cerrar posiciones", MB_YESNO) == 6) {
+      Print("Close all positions clicked");
+   } else if (id == CHARTEVENT_OBJECT_DRAG && OrderLevelDrawer::isPriceLevel(sparam)) {
+      orderManager.updatePartial(sparam);
    }
+   UIManager.notifyCloseAllFinished();
 }
