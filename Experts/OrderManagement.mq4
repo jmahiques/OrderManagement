@@ -7,8 +7,6 @@
 #include <OrderManager.mqh>
 #include <OrderLevelDrawer.mqh>
 
-const string partialStopLossLineName = "Partial stop loss";
-const string partialTakeProfitLineName = "Partial Take Profit";
 UserInterfaceManager *UIManager = new UserInterfaceManager();
 OrderManager *orderManager;
 

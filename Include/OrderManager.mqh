@@ -5,7 +5,6 @@
 
 #include <Arrays\ArrayObj.mqh>
 #include <PriceNormalizer.mqh>
-#include <OrderDrawerHelper.mqh>
 #include <OrderInformation.mqh>
 #include <OrderExecutionHelper.mqh>
 #include <OrderLevelDrawer.mqh>
@@ -25,7 +24,6 @@ private:
    int slippage;
    int digits;
    PriceNormalizer *priceNormalizer;
-   OrderDrawerHelper *drawerHelper;
    OrderExecutionHelper *orderExecution;
    CArrayObj *orders;
    virtual OrderInformation *createOrderInformation();
@@ -75,12 +73,12 @@ OrderManager::OrderManager(
    this.priceNormalizer = new PriceNormalizer(digits);
    this.orderExecution = new OrderExecutionHelper(true, slippage, magicNumber);
    
-   this.drawerHelper = new OrderDrawerHelper();
    this.orders = new CArrayObj();
 }
 
 OrderManager::~OrderManager()
 {
+   clearLines();
 }
 
 void OrderManager::retrieveOrders(string symbol,int magicNumber)
@@ -99,7 +97,7 @@ void OrderManager::retrieveOrders(string symbol,int magicNumber)
       }
       
       OrderInformation* order = createOrderInformation();
-      drawerHelper.drawLines(order);
+      OrderLevelDrawer::drawLevels(order);
    }
 }
 
@@ -154,7 +152,7 @@ void OrderManager::sell(void)
    if (ticket > 0){
       if (OrderSelect(ticket, SELECT_BY_TICKET)) {
          OrderInformation* order = createOrderInformation();
-         drawerHelper.drawLines(order);
+         OrderLevelDrawer::drawLevels(order);
          return;
       }
       Print("Cannot open the order ", GetLastError());
@@ -173,7 +171,7 @@ void OrderManager::buy(void)
    if (ticket > 0){
       if (OrderSelect(ticket, SELECT_BY_TICKET)) {
          OrderInformation* order = createOrderInformation();
-         drawerHelper.drawLines(order);
+         OrderLevelDrawer::drawLevels(order);
          return;
       }
       Print("Cannot open the order ", GetLastError());
@@ -195,7 +193,7 @@ void OrderManager::checkOrders()
       //The order reached the stop loss, pop it from the orders array
       if (OrderCloseTime() != 0) {
          Print("The order has been closed due to stop loss");
-         drawerHelper.clearLines(order);
+         OrderLevelDrawer::removeLevels(order);
          orders.Delete(i);
          return;
       }
@@ -204,7 +202,7 @@ void OrderManager::checkOrders()
       
       //Price reach partial stop loss
       if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss) {
-         drawerHelper.removePartialStopLossLine(order);
+         OrderLevelDrawer::removePartialStopLoss(order);
          
          closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
@@ -215,8 +213,7 @@ void OrderManager::checkOrders()
       
       //Price reaches partial take profit
       if (order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
-         drawerHelper.removePartialTakeProfitLine(order);
-         drawerHelper.removePartialStopLossLine(order);
+         OrderLevelDrawer::removeLevels(order);
          
          closeHalf(order, clrOliveDrab);
          order.executedPartialTakeProfit = true;
@@ -233,7 +230,7 @@ void OrderManager::clearLines(void)
 {
    for(int i = 0; i < orders.Total(); i++) {
       OrderInformation* order = orders.At(i);
-      drawerHelper.clearLines(order);
+      OrderLevelDrawer::removeLevels(order);
    }
 }
 
@@ -256,14 +253,17 @@ void OrderManager::updatePartial(string name)
    int ticket = OrderLevelDrawer::getTicket(name);
    for(int i = 0; i < this.orders.Total(); i++) {
       OrderInformation *order = this.orders.At(i);
+      
       if (ticket == order.getTicket() && !order.executedPartialStopLoss && OrderLevelDrawer::isPartialStopLoss(name)) {
          double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), this.digits);
          Print("Updated price for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialStopLoss(price);
+         
       } else if(ticket == order.getTicket() && !order.executedPartialTakeProfit && OrderLevelDrawer::isPartialTakeProfit(name)) {
          double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), this.digits);
          Print("Updated price for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialTakeProfit(price);
+         
       }
    }
 }
