@@ -24,6 +24,7 @@ input bool retrievePreviouslyOrders = false;
 
 int OnInit()
   {
+   ChartSetInteger(0, CHART_EVENT_OBJECT_DELETE, true);
    UIManager.drawUI();
    orderManager = new OrderManager(_digits, Symbol(), stop, partialStopLoss, partialTakeProfit, takeProfit, lots, halfLots, magicNumber, comment, slippage);
    if (retrievePreviouslyOrders) {
@@ -67,6 +68,10 @@ void OnChartEvent(const int id,
       orderManager.closeAllOrders();
    } else if (id == CHARTEVENT_OBJECT_DRAG && OrderLevelDrawer::isPriceLevel(sparam)) {
       orderManager.updatePartial(sparam);
+   } else if (id == CHARTEVENT_OBJECT_DELETE && OrderLevelDrawer::isPriceLevel(sparam)) {
+      Print("Level deleted");
+      orderManager.removeLevel(sparam);
    }
    UIManager.notifyCloseAllFinished();
+   Print("ID ", IntegerToString(id), " sparam ", sparam);
 }

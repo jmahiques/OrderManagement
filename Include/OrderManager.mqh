@@ -44,6 +44,7 @@ public:
    virtual void clearLines();
    virtual void updatePartial(string name);
    virtual void closeAllOrders();
+   virtual void removeLevel(string name);
   };
   
 OrderManager::OrderManager(
@@ -214,7 +215,7 @@ void OrderManager::checkOrders()
       double price = OrderType() == OP_BUY ? Bid : Ask;
       
       //Price reach partial stop loss
-      if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && !order.executedPartialTakeProfit) {
+      if (!order.removedPartialStopLoss && order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && !order.executedPartialTakeProfit) {
          OrderLevelDrawer::removePartialStopLoss(order);
          
          closeHalf(order, clrRed);
@@ -225,7 +226,7 @@ void OrderManager::checkOrders()
       }
       
       //Price reaches partial take profit
-      if (order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
+      if (!order.removedPartialTakeProfit && order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
          OrderLevelDrawer::removeLevels(order);
          
          closeHalf(order, clrOliveDrab);
@@ -270,11 +271,13 @@ void OrderManager::updatePartial(string name)
          double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), _Digits);
          Print("Updated partial stop loss for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialStopLoss(price);
+         order.removedPartialStopLoss = false;
          
       } else if(ticket == order.getTicket() && !order.executedPartialTakeProfit && OrderLevelDrawer::isPartialTakeProfit(name)) {
          double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), _Digits);
          Print("Updated partial take profit for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialTakeProfit(price);
+         order.removedPartialTakeProfit = false;
          
       }
    }
@@ -286,5 +289,24 @@ void OrderManager::closeAllOrders(void)
    for(int i = 0; i < this.orders.Total(); i++) {
       OrderInformation* order = orders.At(i);
       this.orderExecution.closeOrder(order);
+   }
+}
+
+void OrderManager::removeLevel(string name)
+{
+   int ticket = OrderLevelDrawer::getTicket(name);
+   for(int i = 0; i < orders.Total(); i++) {
+      OrderInformation *order = this.orders.At(i);
+      if (ticket == order.getTicket() && OrderLevelDrawer::isPartialStopLoss(name)) {
+         Print("Remove partial stop loss for order ", IntegerToString(ticket));
+         OrderLevelDrawer::removePartialStopLoss(order);
+         order.removedPartialStopLoss = true;
+
+      } else if(ticket == order.getTicket() && OrderLevelDrawer::isPartialTakeProfit(name)) {
+         Print("Removed partial take profit for order ", IntegerToString(ticket));
+         OrderLevelDrawer::removePartialTakeProfit(order);
+         order.removedPartialTakeProfit = true;
+
+      }
    }
 }

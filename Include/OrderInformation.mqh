@@ -23,6 +23,8 @@ public:
                     ~OrderInformation(){};
    bool executedPartialStopLoss;
    bool executedPartialTakeProfit;
+   bool removedPartialStopLoss;
+   bool removedPartialTakeProfit;
    virtual bool priceReachedPartialStopLoss(double price);
    virtual bool priceReachedPartialTakeProfit(double price);
    double getPartialStopLossPrice() {return partialStopLossPrice;}
@@ -60,6 +62,8 @@ OrderInformation::OrderInformation(double p, int t, double sl, double tp, double
    this.partialTakeProfitPrice = ptp;
    this.executedPartialStopLoss = false;
    this.executedPartialTakeProfit = false;
+   this.removedPartialStopLoss = false;
+   this.removedPartialTakeProfit = false;
 }
 
 bool OrderInformation::priceReachedPartialStopLoss(double price)
