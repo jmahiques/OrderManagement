@@ -267,12 +267,12 @@ void OrderManager::updatePartial(string name)
    for(int i = 0; i < orders.Total(); i++) {
       OrderInformation *order = this.orders.At(i);
       if (ticket == order.getTicket() && !order.executedPartialStopLoss && OrderLevelDrawer::isPartialStopLoss(name)) {
-         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), digits);
+         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), _Digits);
          Print("Updated partial stop loss for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialStopLoss(price);
          
       } else if(ticket == order.getTicket() && !order.executedPartialTakeProfit && OrderLevelDrawer::isPartialTakeProfit(name)) {
-         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), digits);
+         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), _Digits);
          Print("Updated partial take profit for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialTakeProfit(price);
          
