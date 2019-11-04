@@ -26,7 +26,7 @@ private:
    PriceNormalizer *priceNormalizer;
    OrderExecutionHelper *orderExecution;
    CArrayObj *orders;
-   virtual OrderInformation *createOrderInformation();
+   virtual OrderInformation *createOrderInformation(bool searchForLevels);
    virtual double computePartialStopLossPrice(int pips, double price, int type);
    virtual double computePartialTakeProfitPrice(int pips, double price, int type);
    virtual void closeHalf(OrderInformation &order, color rowColor);
@@ -97,13 +97,23 @@ void OrderManager::retrieveOrders(string symbol,int magicNumber)
          continue;
       }
       
-      OrderInformation* order = createOrderInformation();
+      OrderInformation* order = createOrderInformation(true);
       OrderLevelDrawer::drawLevels(order);
    }
 }
 
-OrderInformation* OrderManager::createOrderInformation()
+OrderInformation* OrderManager::createOrderInformation(bool searchForLevels)
 {
+   double orderPartialStopLoss = 0.00;
+   double orderPartialTakeProfit = 0.00;
+   if (searchForLevels) {
+      orderPartialStopLoss = OrderLevelDrawer::getPriceLevel("STOP"+IntegerToString(OrderTicket()));
+      orderPartialTakeProfit = OrderLevelDrawer::getPriceLevel("PROFIT"+IntegerToString(OrderTicket()));
+   } else {
+      orderPartialStopLoss = computePartialStopLossPrice(this.partialStopLoss, OrderOpenPrice(), OrderType());
+      orderPartialTakeProfit = computePartialTakeProfitPrice(this.partialTakeProfit, OrderOpenPrice(), OrderType());
+   }
+   
    OrderInformation* order = new OrderInformation(
       OrderOpenPrice(),
       OrderTicket(),
@@ -111,10 +121,12 @@ OrderInformation* OrderManager::createOrderInformation()
       OrderTakeProfit(),
       OrderLots(),
       OrderType(),
-      computePartialStopLossPrice(this.partialStopLoss, OrderOpenPrice(), OrderType()),
-      computePartialTakeProfitPrice(this.partialTakeProfit, OrderOpenPrice(), OrderType())
+      orderPartialStopLoss,
+      orderPartialTakeProfit
    );
    orders.Add(order);
+   
+   Print("Order ", IntegerToString(order.getTicket()), " created with psl", DoubleToString(orderPartialStopLoss), " and ptp ", DoubleToString(orderPartialTakeProfit));
    
    return(order);
 }
@@ -152,7 +164,7 @@ void OrderManager::sell(void)
    
    if (ticket > 0){
       if (OrderSelect(ticket, SELECT_BY_TICKET)) {
-         OrderInformation* order = createOrderInformation();
+         OrderInformation* order = createOrderInformation(false);
          OrderLevelDrawer::drawLevels(order);
          return;
       }
@@ -171,7 +183,7 @@ void OrderManager::buy(void)
    
    if (ticket > 0){
       if (OrderSelect(ticket, SELECT_BY_TICKET)) {
-         OrderInformation* order = createOrderInformation();
+         OrderInformation* order = createOrderInformation(false);
          OrderLevelDrawer::drawLevels(order);
          return;
       }
@@ -254,7 +266,6 @@ void OrderManager::updatePartial(string name)
    int ticket = OrderLevelDrawer::getTicket(name);
    for(int i = 0; i < orders.Total(); i++) {
       OrderInformation *order = this.orders.At(i);
-      Print("Ticket from level name: ", IntegerToString(ticket), " Ticket from position: ", IntegerToString(order.getTicket()));
       if (ticket == order.getTicket() && !order.executedPartialStopLoss && OrderLevelDrawer::isPartialStopLoss(name)) {
          double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), digits);
          Print("Updated partial stop loss for order ", IntegerToString(ticket), " to ", DoubleToString(price));
