@@ -214,7 +214,7 @@ void OrderManager::checkOrders()
       double price = OrderType() == OP_BUY ? Bid : Ask;
       
       //Price reach partial stop loss
-      if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss) {
+      if (order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && !order.executedPartialTakeProfit) {
          OrderLevelDrawer::removePartialStopLoss(order);
          
          closeHalf(order, clrRed);
