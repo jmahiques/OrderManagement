@@ -252,17 +252,17 @@ void OrderManager::closeHalf(OrderInformation &order, color rowColor)
 void OrderManager::updatePartial(string name)
 {
    int ticket = OrderLevelDrawer::getTicket(name);
-   for(int i = 0; i < this.orders.Total(); i++) {
+   for(int i = 0; i < orders.Total(); i++) {
       OrderInformation *order = this.orders.At(i);
-      
+      Print("Ticket from level name: ", IntegerToString(ticket), " Ticket from position: ", IntegerToString(order.getTicket()));
       if (ticket == order.getTicket() && !order.executedPartialStopLoss && OrderLevelDrawer::isPartialStopLoss(name)) {
-         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), this.digits);
-         Print("Updated price for order ", IntegerToString(ticket), " to ", DoubleToString(price));
+         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), digits);
+         Print("Updated partial stop loss for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialStopLoss(price);
          
       } else if(ticket == order.getTicket() && !order.executedPartialTakeProfit && OrderLevelDrawer::isPartialTakeProfit(name)) {
-         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), this.digits);
-         Print("Updated price for order ", IntegerToString(ticket), " to ", DoubleToString(price));
+         double price = NormalizeDouble(OrderLevelDrawer::getPriceLevel(name), digits);
+         Print("Updated partial take profit for order ", IntegerToString(ticket), " to ", DoubleToString(price));
          order.setPartialTakeProfit(price);
          
       }

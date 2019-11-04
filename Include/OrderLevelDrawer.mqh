@@ -86,7 +86,7 @@ static int OrderLevelDrawer::getTicket(string name)
       return -1;
    }
 
-   return StringToInteger(StringSubstr(name, OrderLevelDrawer::isPartialTakeProfit(name) ? 5 : 4));
+   return StringToInteger(StringSubstr(name, OrderLevelDrawer::isPartialTakeProfit(name) ? 6 : 4));
 }
 
 static bool OrderLevelDrawer::isPartialStopLoss(string name)
