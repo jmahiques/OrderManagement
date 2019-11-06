@@ -220,10 +220,13 @@ void OrderManager::checkOrders()
       //Price reach partial stop loss
       if (!order.removedPartialStopLoss && order.priceReachedPartialStopLoss(Bid) && !order.executedPartialStopLoss && !order.executedPartialTakeProfit) {
          Print("Price reached Partial Stop Loss", DoubleToString(order.getPartialStopLossPrice()));
+         int previousTicket = order.getTicket();
          OrderLevelDrawer::removePartialStopLoss(order);
          
          closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
+         
+         OrderLevelDrawer::updatePartialTakeProfitName(previousTicket,order.getTicket());
          
          continue;
       }

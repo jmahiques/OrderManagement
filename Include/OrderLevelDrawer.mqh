@@ -27,6 +27,7 @@ class OrderLevelDrawer
       static bool isPartialTakeProfit(string name);
       static bool partialStopLossExist(int ticket);
       static bool partialTakeProfitExist(int ticket);
+      static void updatePartialTakeProfitName(int previousTicket, int newTicket);
       
       OrderLevelDrawer(){}
       ~OrderLevelDrawer(){}
@@ -109,4 +110,10 @@ static bool OrderLevelDrawer::partialStopLossExist(int ticket)
 static bool OrderLevelDrawer::partialTakeProfitExist(int ticket)
 {
    return ObjectFind("PROFIT"+IntegerToString(ticket)) >= 0;
+}
+
+static void OrderLevelDrawer::updatePartialTakeProfitName(int previousTicket,int newTicket)
+{
+   Print("Updating partial take profit for previous ticket "+IntegerToString(previousTicket)+" to new ticket "+IntegerToString(newTicket));
+   ObjectSetString(0, "PROFIT"+IntegerToString(previousTicket), OBJPROP_NAME, "PROFIT"+IntegerToString(newTicket));
 }
