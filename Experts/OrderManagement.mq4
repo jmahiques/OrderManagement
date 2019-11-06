@@ -69,7 +69,6 @@ void OnChartEvent(const int id,
    } else if (id == CHARTEVENT_OBJECT_DRAG && OrderLevelDrawer::isPriceLevel(sparam)) {
       orderManager.updatePartial(sparam);
    } else if (id == CHARTEVENT_OBJECT_DELETE && OrderLevelDrawer::isPriceLevel(sparam)) {
-      Print("Level deleted");
       orderManager.removeLevel(sparam);
    }
    UIManager.notifyCloseAllFinished();

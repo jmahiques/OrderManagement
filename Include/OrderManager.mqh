@@ -221,17 +221,18 @@ void OrderManager::checkOrders()
       
       //Price reach partial stop loss
       if (!order.removedPartialStopLoss && order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && !order.executedPartialTakeProfit) {
+         Print("Price reached Partial Stop Loss", DoubleToString(order.getPartialStopLossPrice()));
          OrderLevelDrawer::removePartialStopLoss(order);
          
          closeHalf(order, clrRed);
          order.executedPartialStopLoss = true;
          
-         Print("Price reached Partial Stop Loss");
          continue;
       }
       
       //Price reaches partial take profit
       if (!order.removedPartialTakeProfit && order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
+         Print("Price reached Partial Take Profit ", DoubleToString(order.getPartialTakeProfitPrice()));
          OrderLevelDrawer::removeLevels(order);
          
          closeHalf(order, clrOliveDrab);
@@ -239,7 +240,6 @@ void OrderManager::checkOrders()
          
          orderExecution.putStopOnBreakEven(order);
          
-         Print("Price reached Partial Take Profit");
          continue;
       }
    }
