@@ -288,7 +288,9 @@ void OrderManager::closeAllOrders(void)
    clearLines();
    for(int i = 0; i < this.orders.Total(); i++) {
       OrderInformation* order = orders.At(i);
-      this.orderExecution.closeOrder(order);
+      if (!this.orderExecution.closeOrder(order)) {
+         Print("Error closing order ", GetLastError());
+      }
    }
 }
 
