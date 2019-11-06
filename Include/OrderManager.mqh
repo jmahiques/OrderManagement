@@ -99,7 +99,12 @@ void OrderManager::retrieveOrders(string symbol,int magicNumber)
       }
       
       OrderInformation* order = createOrderInformation(true);
-      OrderLevelDrawer::drawLevels(order);
+      if (!OrderLevelDrawer::partialStopLossExist(order.getTicket()) && !order.removedPartialStopLoss && !order.executedPartialStopLoss) {
+         OrderLevelDrawer::drawPartialStopLoss(order);
+      }
+      if (!OrderLevelDrawer::partialTakeProfitExist(order.getTicket()) && !order.removedPartialTakeProfit && !order.executedPartialTakeProfit) {
+         OrderLevelDrawer::drawPartialTakeProfit(order);
+      }
    }
 }
 

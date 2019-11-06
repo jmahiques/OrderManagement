@@ -25,6 +25,8 @@ class OrderLevelDrawer
       static int getTicket(string name);
       static bool isPartialStopLoss(string name);
       static bool isPartialTakeProfit(string name);
+      static bool partialStopLossExist(int ticket);
+      static bool partialTakeProfitExist(int ticket);
       
       OrderLevelDrawer(){}
       ~OrderLevelDrawer(){}
@@ -97,4 +99,14 @@ static bool OrderLevelDrawer::isPartialStopLoss(string name)
 static bool OrderLevelDrawer::isPartialTakeProfit(string name)
 {
    return StringFind(name, "PROFIT") >= 0;
+}
+
+static bool OrderLevelDrawer::partialStopLossExist(int ticket)
+{
+   return ObjectFind("STOP"+IntegerToString(ticket)) >= 0;
+}
+
+static bool OrderLevelDrawer::partialTakeProfitExist(int ticket)
+{
+   return ObjectFind("PROFIT"+IntegerToString(ticket)) >= 0;
 }

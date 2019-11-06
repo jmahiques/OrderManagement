@@ -73,5 +73,4 @@ void OnChartEvent(const int id,
       orderManager.removeLevel(sparam);
    }
    UIManager.notifyCloseAllFinished();
-   Print("ID ", IntegerToString(id), " sparam ", sparam);
 }
