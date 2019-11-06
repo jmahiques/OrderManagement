@@ -20,7 +20,7 @@ input double halfLots = 0.01;
 input int magicNumber = 1;
 input string comment = "Probando ratios";
 input int slippage = 3;
-input bool retrievePreviouslyOrders = false;
+input bool retrievePreviouslyOrders = true;
 
 int OnInit()
   {
