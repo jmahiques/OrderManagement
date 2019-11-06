@@ -21,12 +21,13 @@ input int magicNumber = 1;
 input string comment = "Probando ratios";
 input int slippage = 3;
 input bool retrievePreviouslyOrders = true;
+input bool useOwndigits = false;
 
 int OnInit()
   {
    ChartSetInteger(0, CHART_EVENT_OBJECT_DELETE, true);
    UIManager.drawUI();
-   orderManager = new OrderManager(_digits, Symbol(), stop, partialStopLoss, partialTakeProfit, takeProfit, lots, halfLots, magicNumber, comment, slippage);
+   orderManager = new OrderManager(useOwndigits ? _digits : Digits, Symbol(), stop, partialStopLoss, partialTakeProfit, takeProfit, lots, halfLots, magicNumber, comment, slippage);
    if (retrievePreviouslyOrders) {
       orderManager.retrieveOrders(Symbol(), magicNumber);
    }

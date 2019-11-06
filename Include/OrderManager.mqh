@@ -217,10 +217,8 @@ void OrderManager::checkOrders()
          return;
       }
       
-      double price = OrderType() == OP_BUY ? Bid : Ask;
-      
       //Price reach partial stop loss
-      if (!order.removedPartialStopLoss && order.priceReachedPartialStopLoss(price) && !order.executedPartialStopLoss && !order.executedPartialTakeProfit) {
+      if (!order.removedPartialStopLoss && order.priceReachedPartialStopLoss(Bid) && !order.executedPartialStopLoss && !order.executedPartialTakeProfit) {
          Print("Price reached Partial Stop Loss", DoubleToString(order.getPartialStopLossPrice()));
          OrderLevelDrawer::removePartialStopLoss(order);
          
@@ -231,7 +229,7 @@ void OrderManager::checkOrders()
       }
       
       //Price reaches partial take profit
-      if (!order.removedPartialTakeProfit && order.priceReachedPartialTakeProfit(price) && !order.executedPartialTakeProfit) {
+      if (!order.removedPartialTakeProfit && order.priceReachedPartialTakeProfit(Bid) && !order.executedPartialTakeProfit) {
          Print("Price reached Partial Take Profit ", DoubleToString(order.getPartialTakeProfitPrice()));
          OrderLevelDrawer::removeLevels(order);
          
